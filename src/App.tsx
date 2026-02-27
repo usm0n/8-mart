@@ -15,7 +15,7 @@ const NAMES = [
   "Sevinchoy","Guli","Bonu","Q. Dilnura",
   "S. Dilnura","Gulruxsor","Shahzoda","Mexriniso",
   "Kamola","Shoxruza","Muborak","Charos",
-  "Durdona","Zulayho","Dinora","Roziya",
+  "Durdona","Zulayho","Dinora","Roziya", "Dilnoza ustoz",
 ];
 
 // ⚠️  Change before the event
