@@ -12,10 +12,10 @@ import {
 // ── Constants & Types
 // ─────────────────────────────────────────────────────────────────────────────
 const NAMES = [
-  "Malika","Zulfiya","Nilufar","Shahlo",
-  "Madina","Feruza","Gulnora","Dildora",
-  "Nargiza","Barno","Munira","Sarvinoz",
-  "Mohira","Kamola","Nasiba","Umida",
+  "Sevinchoy","Guli","Bonu","Q. Dilnura",
+  "S. Dilnura","Gulruxsor","Shahzoda","Mexriniso",
+  "Kamola","Shoxruza","Muborak","Charos",
+  "Durdona","Zulayho","Dinora","Roziya",
 ];
 
 // ⚠️  Change before the event
