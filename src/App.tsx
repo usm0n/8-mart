@@ -15,7 +15,7 @@ const NAMES = [
   "Sevinchoy","Guli","Bonu","Q. Dilnura",
   "S. Dilnura","Gulruxsor","Shahzoda","Mexriniso",
   "Kamola","Shoxruza","Muborak","Charos",
-  "Durdona","Zulayho","Dinora","Roziya", "Dilnoza ustoz",
+  "Durdona","Zulayho","Dinora","Roziya","Dilnoza ustoz",
 ];
 
 // ⚠️  Change before the event
@@ -46,7 +46,7 @@ interface Perfume {
   Bottle:      FC<{ accent: string; size?: number }>;
 }
 
-type Screen = "loading" | "name" | "mode" | "perfume" | "wheel" | "quiz" | "result" | "admin";
+type Screen = "loading" | "saving" | "name" | "mode" | "perfume" | "wheel" | "quiz" | "result" | "admin";
 type Tab    = "result" | "perfumes" | "others";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -310,6 +310,88 @@ const LoadingScreen: FC = () => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ── SavingScreen — shown while Firebase write + session setup completes
+// ─────────────────────────────────────────────────────────────────────────────
+const SavingScreen: FC<{ perfume: Perfume }> = ({ perfume }) => {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => { setTimeout(() => setVisible(true), 40); }, []);
+  return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{ background: perfume.bg }}
+    >
+      {/* keyframes needed here since this renders before the main <style> block */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=EB+Garamond:ital,wght@0,400;1,400&display=swap');
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{background:#07000c}
+        @keyframes rise      {0%{transform:translateY(0);opacity:0}15%{opacity:.6}100%{transform:translateY(-95vh);opacity:0}}
+        @keyframes float     {0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+        @keyframes twinkle   {0%,100%{opacity:.05}50%{opacity:.6}}
+        @keyframes loadDot   {0%,100%{opacity:.2}50%{opacity:1}}
+      `}</style>
+      <div className="absolute inset-0 pointer-events-none" style={{ background: `radial-gradient(ellipse at 50% 40%,${perfume.accent}20,transparent 60%)` }} />
+      <Stars />
+      <Particles accent={perfume.accent} />
+      <div
+        className={`relative z-10 text-center transition-all duration-700 ${visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}
+      >
+        <div
+          className="flex justify-center mb-8"
+          style={{ filter: `drop-shadow(0 0 40px ${perfume.accent}90)`, animation: "float 2.5s ease-in-out infinite" }}
+        >
+          <perfume.Bottle accent={perfume.accent} size={130} />
+        </div>
+        <div style={{ fontFamily: "'Cormorant',serif", fontSize: "clamp(1.4rem,4vw,2rem)", color: "#fff", fontWeight: 300, marginBottom: ".5rem" }}>
+          {perfume.name}
+        </div>
+        <div style={{ fontFamily: "'EB Garamond',serif", fontStyle: "italic", color: perfume.accent + "88", fontSize: ".82rem", letterSpacing: ".25em", marginBottom: "2.5rem" }}>
+          {perfume.tagline}
+        </div>
+        {/* Pulsing dots */}
+        <div className="flex items-center justify-center gap-2.5">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              style={{
+                width: 7, height: 7, borderRadius: "50%",
+                background: perfume.accent,
+                animation: `loadDot 1.1s ${i * 160}ms ease-in-out infinite`,
+              }}
+            />
+          ))}
+        </div>
+        <p style={{ fontFamily: "'EB Garamond',serif", fontStyle: "italic", color: "rgba(255,255,255,.2)", fontSize: ".78rem", letterSpacing: ".28em", marginTop: "1rem" }}>
+          Saqlanmoqda...
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ── ReselectingOverlay — instant full-screen feedback on reselect press
+// ─────────────────────────────────────────────────────────────────────────────
+const ReselectingOverlay: FC<{ perfume: Perfume }> = ({ perfume }) => (
+  <div
+    className="fixed inset-0 z-50 flex flex-col items-center justify-center"
+    style={{ background: "rgba(0,0,0,.88)", backdropFilter: "blur(16px)", animation: "fadeUp .25s ease both" }}
+  >
+    <div style={{ filter: `drop-shadow(0 0 30px ${perfume.accent}70)`, animation: "float 2s ease-in-out infinite", marginBottom: "1.8rem" }}>
+      <perfume.Bottle accent={perfume.accent} size={80} />
+    </div>
+    <div className="flex items-center gap-2.5">
+      {[0, 1, 2].map(i => (
+        <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: perfume.accent, animation: `loadDot 1.1s ${i * 160}ms ease-in-out infinite` }} />
+      ))}
+    </div>
+    <p style={{ fontFamily: "'EB Garamond',serif", fontStyle: "italic", color: "rgba(255,255,255,.25)", fontSize: ".8rem", letterSpacing: ".28em", marginTop: "1rem" }}>
+      O'chirilmoqda...
+    </p>
+  </div>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ── NamePage
 // ─────────────────────────────────────────────────────────────────────────────
 const NamePage: FC<{onNext:(n:string)=>void; takenNames:TakenName[]}> = ({onNext,takenNames}) => {
@@ -345,7 +427,7 @@ const NamePage: FC<{onNext:(n:string)=>void; takenNames:TakenName[]}> = ({onNext
           <p style={{fontFamily:"'EB Garamond',serif",color:"rgba(255,255,255,.25)",fontSize:".82rem",letterSpacing:".42em",textTransform:"uppercase",marginTop:"1rem"}}>Ismingizni tanlang</p>
         </div>
 
-        <div className="grid grid-cols-4 gap-2.5">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
           {NAMES.map((name,i)=>{
             const taken=takenSet.has(name), isH=hov===name, isS=sel===name;
             return (
@@ -865,7 +947,8 @@ const ResultPage: FC<{
   const [currentSession,setCurrentSession] = useState(session);
   const [activeTab,setActiveTab] = useState<Tab>("result");
   const [publicShares,setPublicShares] = useState<ShareEntry[]>([]);
-  const isFirstVisit = !session.isPublic && session.ts > Date.now() - 10000; // within 10s = fresh
+  const [reselecting,setReselecting] = useState(false);   // kept for button disabled state only
+  const isFirstVisit = !session.isPublic && session.ts > Date.now() - 10000;
 
   useEffect(()=>{
     setTimeout(()=>setShow(true),80);
@@ -882,6 +965,11 @@ const ResultPage: FC<{
   const handleModalDone=(isPublic:boolean,anonymous:boolean)=>{
     const ns:UserSession={...currentSession,isPublic,anonymous};
     writeSession(ns); setCurrentSession(ns); setShowModal(false);
+  };
+
+  const handleReselect = () => {
+    setReselecting(true);  // disable button immediately to prevent double-tap
+    onChangeSelection();
   };
 
   const tabs:{id:Tab;label:string}[]=[{id:"result",label:"Natijam"},{id:"perfumes",label:"Atirlar"},{id:"others",label:"Boshqalar"}];
@@ -946,7 +1034,7 @@ const ResultPage: FC<{
             </div>
 
             {/* Change selection */}
-            <button onClick={onChangeSelection}
+            <button onClick={handleReselect} disabled={reselecting}
               style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",fontSize:".82rem",padding:"8px 24px",cursor:"pointer",background:"transparent",border:"1px solid rgba(255,255,255,.1)",color:"rgba(255,255,255,.25)",transition:"all .3s",marginBottom:"1.5rem"}}
               onMouseEnter={e=>{const b=e.currentTarget as HTMLButtonElement;b.style.color="rgba(255,255,255,.5)";b.style.borderColor="rgba(255,255,255,.22)";}}
               onMouseLeave={e=>{const b=e.currentTarget as HTMLButtonElement;b.style.color="rgba(255,255,255,.25)";b.style.borderColor="rgba(255,255,255,.1)";}}>
@@ -974,9 +1062,21 @@ const AdminPage: FC<{onExit:()=>void}> = ({onExit}) => {
   const [filter,setFilter]   = useState("all");
   const [mFilter,setMFilter] = useState("all");
   const [search,setSearch]   = useState("");
+  const [deleteConfirm,setDeleteConfirm] = useState<string|null>(null); // docId pending confirm
+  const [deleting,setDeleting] = useState<string|null>(null);           // docId being deleted
 
   const login=()=>{ if(pw===ADMIN_PASSWORD){setAuthed(true);load();} else{setPwErr(true);setTimeout(()=>setPwErr(false),1500);} };
   const load=async()=>{ setLoading(true); setEntries(await getAllEntries()); setLoading(false); };
+
+  const handleDelete = async (docId: string) => {
+    setDeleting(docId);
+    try {
+      await deleteEntry(docId);
+      setEntries(prev => prev.filter(e => e.id !== docId));
+    } catch (e) { console.error("Delete failed:", e); }
+    setDeleting(null);
+    setDeleteConfirm(null);
+  };
 
   const filtered=entries
     .filter(e=>filter==="all"||e.perfumeId===filter)
@@ -1078,12 +1178,14 @@ const AdminPage: FC<{onExit:()=>void}> = ({onExit}) => {
             {filtered.length===0&&<div className="text-center py-12"><p style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",color:"rgba(255,255,255,.18)"}}>Natija yo'q</p></div>}
             {filtered.map((e,i)=>{
               const p=PERFUMES.find(x=>x.id===e.perfumeId); if(!p) return null;
+              const isConfirming = deleteConfirm === e.id;
+              const isDeleting   = deleting === e.id;
               return (
                 <div key={e.id} className="relative flex items-center gap-3 flex-wrap"
-                  style={{padding:".85rem 1.1rem",background:`${e.accent}06`,border:`1px solid ${e.accent}20`}}>
+                  style={{padding:".85rem 1.1rem",background:isConfirming?`${e.accent}12`:`${e.accent}06`,border:`1px solid ${isConfirming?e.accent+"55":e.accent+"20"}`,transition:"all .25s"}}>
                   <div className="absolute left-0 top-0 bottom-0 w-0.5" style={{background:e.accent,opacity:.5}}/>
                   <span style={{fontFamily:"'EB Garamond',serif",fontSize:".62rem",color:"rgba(255,255,255,.2)",minWidth:"1.4rem"}}>{filtered.length-i}</span>
-                  <div style={{flexShrink:0,filter:`drop-shadow(0 0 8px ${e.accent}50)`}}><p.Bottle accent={e.accent} size={36}/></div>
+                  <div style={{flexShrink:0,filter:`drop-shadow(0 0 8px ${e.accent}50)`,opacity:isDeleting?.4:1,transition:"opacity .3s"}}><p.Bottle accent={e.accent} size={36}/></div>
                   <div style={{minWidth:90}}>
                     <div style={{fontFamily:"'Cormorant',serif",fontSize:"1.05rem",color:"#fff"}}>{e.name}</div>
                     {e.anonymous&&<div style={{fontFamily:"'EB Garamond',serif",fontSize:".58rem",color:"rgba(255,255,255,.2)",fontStyle:"italic"}}>anonim taqdim</div>}
@@ -1098,6 +1200,28 @@ const AdminPage: FC<{onExit:()=>void}> = ({onExit}) => {
                   </div>
                   <div style={{fontFamily:"'EB Garamond',serif",fontSize:".76rem",color:"rgba(255,255,255,.28)"}}>🌸 {e.reactions}</div>
                   <div style={{fontFamily:"'EB Garamond',serif",fontSize:".66rem",color:"rgba(255,255,255,.16)",whiteSpace:"nowrap"}}>{timeAgo(e.ts)}</div>
+                  {/* Delete controls */}
+                  <div className="flex items-center gap-2 ml-auto">
+                    {isConfirming ? (
+                      <>
+                        <button onClick={()=>handleDelete(e.id)} disabled={isDeleting}
+                          style={{fontFamily:"'EB Garamond',serif",fontSize:".72rem",padding:"4px 12px",cursor:"pointer",background:"rgba(239,68,68,.2)",border:"1px solid rgba(239,68,68,.5)",color:"#fca5a5",transition:"all .2s",opacity:isDeleting?.5:1,whiteSpace:"nowrap"}}>
+                          {isDeleting?"...":"✓ Ha"}
+                        </button>
+                        <button onClick={()=>setDeleteConfirm(null)}
+                          style={{fontFamily:"'EB Garamond',serif",fontSize:".72rem",padding:"4px 10px",cursor:"pointer",background:"transparent",border:"1px solid rgba(255,255,255,.1)",color:"rgba(255,255,255,.3)",transition:"all .2s"}}>
+                          Yo'q
+                        </button>
+                      </>
+                    ) : (
+                      <button onClick={()=>setDeleteConfirm(e.id)}
+                        style={{fontFamily:"'EB Garamond',serif",fontSize:".72rem",padding:"4px 10px",cursor:"pointer",background:"transparent",border:"1px solid rgba(255,255,255,.06)",color:"rgba(255,255,255,.2)",transition:"all .25s"}}
+                        onMouseEnter={el=>{(el.currentTarget as HTMLButtonElement).style.borderColor="rgba(239,68,68,.4)";(el.currentTarget as HTMLButtonElement).style.color="rgba(239,68,68,.7)";}}
+                        onMouseLeave={el=>{(el.currentTarget as HTMLButtonElement).style.borderColor="rgba(255,255,255,.06)";(el.currentTarget as HTMLButtonElement).style.color="rgba(255,255,255,.2)";}}>
+                        🗑
+                      </button>
+                    )}
+                  </div>
                 </div>
               );
             })}
@@ -1118,7 +1242,11 @@ export default function App(): ReactElement {
   const [chosen,setChosen]     = useState<Perfume|null>(null);
   const [session,setSession]   = useState<UserSession|null>(null);
   const [takenNames,setTakenNames] = useState<TakenName[]>([]);
-  const [namesReady,setNamesReady] = useState(false);
+  const [reselectingPerfume,setReselectingPerfume] = useState<Perfume|null>(null);
+  // useRef so the subscribeToAllNames closure always reads the CURRENT value.
+  // useState would leave a stale "false" in the closure, causing every Firebase
+  // snapshot (e.g. after createEntry / deleteEntry) to reset the screen to "name".
+  const namesReadyRef = useRef(false);
 
   useEffect(()=>{
     // Admin shortcut
@@ -1127,8 +1255,8 @@ export default function App(): ReactElement {
     // Subscribe to all names from Firebase — this is the "loading" phase
     const unsub = subscribeToAllNames(names=>{
       setTakenNames(names);
-      if(!namesReady){
-        setNamesReady(true);
+      if(!namesReadyRef.current){
+        namesReadyRef.current = true;   // ref update — never stale in this closure
         // Now decide what screen to show
         const saved = readSession();
         if(saved){
@@ -1147,15 +1275,18 @@ export default function App(): ReactElement {
 
   /**
    * Called when a perfume is confirmed (manual click, wheel accept, quiz accept).
-   * Immediately writes to Firebase with isPublic:false and stores session.
-   * The ShareModal then just flips isPublic via updateEntry.
+   * 1. Immediately shows SavingScreen with the chosen perfume's visuals.
+   * 2. Writes to Firebase with isPublic:false.
+   * 3. Only then transitions to result page.
+   * If the user closes before step 3, their data is still in Firebase from step 2.
    */
-  const handlePerfumeConfirmed = async (perfume:Perfume, chosenMethod:string) => {
+  const handlePerfumeConfirmed = async (perfume: Perfume, chosenMethod: string) => {
     setChosen(perfume);
+    setScreen("saving");           // ← instant visual feedback, no flash
     try {
       const docId = await createEntry({
         name:        userName,
-        displayName: userName,   // updated to "Noma'lum" if they choose anonymous in modal
+        displayName: userName,
         anonymous:   false,
         perfumeId:   perfume.id,
         perfumeName: perfume.name,
@@ -1165,34 +1296,51 @@ export default function App(): ReactElement {
         personality: perfume.personality,
         ts:          Date.now(),
         reactions:   0,
-        isPublic:    false,       // private until user decides in modal
+        isPublic:    false,
         method:      chosenMethod,
       });
-      const newSession:UserSession = {
-        name:userName, perfumeId:perfume.id, method:chosenMethod,
-        isPublic:false, anonymous:false, docId, ts:Date.now(),
+      const newSession: UserSession = {
+        name: userName, perfumeId: perfume.id, method: chosenMethod,
+        isPublic: false, anonymous: false, docId, ts: Date.now(),
       };
       writeSession(newSession);
       setSession(newSession);
-    } catch(e){ console.error("Auto-save failed:",e); }
+    } catch (e) {
+      console.error("Auto-save failed:", e);
+    }
     setScreen("result");
   };
 
   /**
    * Delete old Firebase doc, clear session, go back to mode picker.
+   * ReselectingOverlay is rendered at App Root level (not inside ResultPage)
+   * so it stays visible even after ResultPage unmounts.
    */
   const handleChangeSelection = async () => {
-    if(session?.docId){
-      try { await deleteEntry(session.docId); } catch(e){ console.error("Delete failed:",e); }
-    }
+    const oldPerfume = chosen;      // capture before clearing
+    const oldDocId   = session?.docId;
+
+    // 1. Show overlay immediately — it lives at App Root, survives screen change
+    if (oldPerfume) setReselectingPerfume(oldPerfume);
+
+    // 2. Clear everything and navigate NOW — no waiting for Firebase
     clearSession();
     setSession(null);
     setChosen(null);
     setScreen("mode");
+
+    // 3. Fade overlay out after mode page has rendered (~700ms)
+    setTimeout(() => setReselectingPerfume(null), 700);
+
+    // 4. Delete the old doc in background — fire and forget
+    if (oldDocId) {
+      try { await deleteEntry(oldDocId); } catch (e) { console.error("Delete failed:", e); }
+    }
   };
 
-  if(screen==="admin") return <AdminPage onExit={()=>{ window.history.replaceState({},"",window.location.pathname); setScreen(session?"result":"loading"); }}/>;
-  if(screen==="loading") return <LoadingScreen/>;
+  if (screen === "admin") return <AdminPage onExit={() => { window.history.replaceState({}, "", window.location.pathname); setScreen(session ? "result" : "loading"); }} />;
+  if (screen === "loading") return <LoadingScreen />;
+  if (screen === "saving" && chosen) return <SavingScreen perfume={chosen} />;
 
   return (
     <>
@@ -1208,6 +1356,9 @@ export default function App(): ReactElement {
         @keyframes loadPulse {0%,100%{transform:scaleY(.6);opacity:.5}50%{transform:scaleY(1);opacity:1}}
         @keyframes loadDot   {0%,100%{opacity:.2}50%{opacity:1}}
       `}</style>
+
+      {/* App-level overlay — persists across screen transitions */}
+      {reselectingPerfume && <ReselectingOverlay perfume={reselectingPerfume} />}
 
       {screen==="name"    && <NamePage    onNext={n=>{setUserName(n);setScreen("mode");}} takenNames={takenNames}/>}
       {screen==="mode"    && <ModePage    name={userName} onMode={m=>{setMethod(m);setScreen(m==="manual"?"perfume":m==="wheel"?"wheel":"quiz");}}/>}
