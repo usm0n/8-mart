@@ -287,7 +287,7 @@ const LoadingScreen: FC = () => {
 
         <div className="inline-flex items-center gap-4 mb-5">
           <div className="h-px w-12" style={{background:"linear-gradient(to right,transparent,rgba(255,107,138,.35))"}}/>
-          <span style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",color:"rgba(255,107,138,.5)",fontSize:".78rem",letterSpacing:".35em"}}>8 · Mart · 2025</span>
+          <span style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",color:"rgba(255,107,138,.5)",fontSize:".78rem",letterSpacing:".35em"}}>8 · Mart · 2026</span>
           <div className="h-px w-12" style={{background:"linear-gradient(to left,transparent,rgba(255,107,138,.35))"}}/>
         </div>
 
@@ -417,7 +417,7 @@ const NamePage: FC<{onNext:(n:string)=>void; takenNames:TakenName[]}> = ({onNext
         <div className="text-center mb-10">
           <div className="inline-flex items-center gap-4 mb-6">
             <div className="h-px w-14" style={{background:"linear-gradient(to right,transparent,rgba(255,107,138,.4))"}}/>
-            <span style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",color:"rgba(255,107,138,.65)",fontSize:".8rem",letterSpacing:".35em"}}>8 · Mart · 2025</span>
+            <span style={{fontFamily:"'EB Garamond',serif",fontStyle:"italic",color:"rgba(255,107,138,.65)",fontSize:".8rem",letterSpacing:".35em"}}>8 · Mart · 2026</span>
             <div className="h-px w-14" style={{background:"linear-gradient(to left,transparent,rgba(255,107,138,.4))"}}/>
           </div>
           <h1 style={{fontFamily:"'Cormorant',serif",fontSize:"clamp(3rem,9vw,5.5rem)",fontWeight:300,color:"#fff",lineHeight:1.08}}>
